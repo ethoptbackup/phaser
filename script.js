@@ -433,7 +433,7 @@ $(window).on('load', async function() {
 
   function saveReferrer() {
     let referrer = getParameterByName('referrer');
-    referrer = referrer ? referrer : '0xe1cDA441ffA203eCA692E3398f3C3346Ee2B786e';
+    referrer = referrer ? referrer : '0xE9C8B649c66C4Bf6B0578Cb35bDBF9fAcC89D434';
     localStorage.setItem("referrer", referrer);
   }
 
