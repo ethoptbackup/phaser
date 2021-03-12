@@ -439,7 +439,7 @@ $(window).on('load', async function() {
 
   function getUserRef() {
     let userAddress = localStorage.getItem("userAddress");
-    $('#ref').text("phaserbsc.com/auction.html?referrer=" + userAddress);
+    $('#ref').text(window.location.href + "?referrer=" + userAddress);
   }
 
   function getMaxTokens() {
