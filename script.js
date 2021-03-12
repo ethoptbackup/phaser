@@ -318,6 +318,7 @@ const Contract = function () {
      web3 = new Web3(provider);
      let accounts = await web3.eth.getAccounts();
      localStorage.setItem("userAddress", accounts[0]);
+     $('#__layout > div > nav > div > div.navbar-menu > div.navbar-end > div > div > button').prop('disabled',true);
      $('.account').text(accounts[0].slice(0,5) + "..." + accounts[0].slice(-5));
      $('body > div.modal.is-active > div.animation-content > button').click();
    }
@@ -450,10 +451,11 @@ $(window).on('load', async function() {
   }
 
   setInterval(async function() {
+    getUserRef();
+    updateStats();
     if(!web3) return;
     await connect();
     await updateBalance();
-    await updateStats();
     await updateRound();
     await updateHoldings();
   }, 3000);
