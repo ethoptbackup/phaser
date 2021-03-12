@@ -439,7 +439,7 @@ $(window).on('load', async function() {
 
   function getUserRef() {
     let userAddress = localStorage.getItem("userAddress");
-    $('#ref').text(window.location.origin + "?referrer=" + userAddress);
+    $('#ref').text(window.location.origin + window.location.pathname + "?referrer=" + userAddress);
   }
 
   function getMaxTokens() {
