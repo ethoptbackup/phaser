@@ -557,6 +557,12 @@ $(window).on('load', async function() {
   $('#transfer').on('click', async function() {
      await transfer();
   });
+
+  $('#max').on('click', async function() {
+    let lpTokenBalance = await contract.lpTokenBalance();
+    lpTokenBalance = parseFloat(lpTokenBalance) / 1e18;
+    $('#stakeInput').val(lpTokenBalance);	  
+  });
  
   $('#metamask').on('click', async function() {
     await metamask.connectWeb3();
