@@ -7,26 +7,26 @@ const web3Modal = new Web3Modal({
    cacheProvider: true, // optional
    providerOptions // required
 });
-
+ 
 let auctionDelay = 86400;
 let start = 1614886200;
 let maxNum = new BigNumber("115792089237316195423570985008687907853269984665640564039457584007913129639935").toFixed();
 let zeroAddr = "0x0000000000000000000000000000000000000000";
-
+ 
 let provider;
 let web3;
-
+ 
 const Contract = function () {
-
+ 
   let auctionABI = JSON.parse('[{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"OnBuy","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"OnWithdraw","type":"event"},{"inputs":[],"name":"daily_decay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"delay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_referrer","type":"address"}],"name":"enter","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"initial_emission","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"mag","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"phx","outputs":[{"internalType":"contract PHX","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"staking","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"start","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"total","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"user","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_round","type":"uint256"}],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}]');
   let stakingABI = JSON.parse('[{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"OnClaim","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"OnDeposit","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"OnTransfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"OnWithdraw","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"deposit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"distribute","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"divPerShare","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"dividendsOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_token","type":"address"}],"name":"setToken","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"token","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_to","type":"address"},{"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"users","outputs":[{"internalType":"uint256","name":"balance","type":"uint256"},{"internalType":"int256","name":"scaledPayout","type":"int256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},{"stateMutability":"payable","type":"receive"}]');
   let tokenABI = JSON.parse('[{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"add","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"lock","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"locked","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_to","type":"address"},{"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"mint","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"remove","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"unlock","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"whitelist","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}]');
-
+ 
   let auction = '0x19c785c27a22593c89a37b50bfBEbff901275877';
   let lpToken = '0x9542762aA43fb5ed0bD109d34713A1100aA3615e';
   let staking = '0x84EdAF31e3f376f5d1b07aaf57B3f2D954348173';
   let token = '0x3b1B01441f8Ae64d7d72c1e8A4A8646831fDA0c2';
-
+ 
   function getBalance() {
     let userAddress = localStorage.getItem("userAddress");
     return new Promise((resolve, reject) => {
@@ -39,7 +39,7 @@ const Contract = function () {
         });
     });
   }
-
+ 
   function getStart() {
     let auctionContract = new web3.eth.Contract(auctionABI, auction);
     return new Promise((resolve, reject) => {
@@ -54,7 +54,7 @@ const Contract = function () {
         });
     });
   }
-
+ 
   function getRoundTotal(obj) {
     let auctionContract = new web3.eth.Contract(auctionABI, auction);
     return new Promise((resolve, reject) => {
@@ -69,7 +69,7 @@ const Contract = function () {
         });
     });
   }
-
+ 
   function getUserInfo(obj) {
     let userAddress = localStorage.getItem("userAddress");
     let auctionContract = new web3.eth.Contract(auctionABI, auction);
@@ -85,9 +85,9 @@ const Contract = function () {
         });
     });
   }
-
+ 
   function enter(obj) {
-    let referrer = localStorag.getItem("referrer");
+    let referrer = localStorage.getItem("referrer");
     let userAddress = localStorage.getItem("userAddress");
     let auctionContract = new web3.eth.Contract(auctionABI, auction);
     return new Promise((resolve, reject) => {
@@ -102,7 +102,7 @@ const Contract = function () {
         });
     });
   }
-
+ 
   function withdraw(obj) {
     let userAddress = localStorage.getItem("userAddress");
     let auctionContract = new web3.eth.Contract(auctionABI, auction);
@@ -118,7 +118,7 @@ const Contract = function () {
         });
     });
   }
-
+ 
   function deposit(obj) {
     let userAddress = localStorage.getItem("userAddress");
     let stakingContract = new web3.eth.Contract(stakingABI, staking);
@@ -134,7 +134,7 @@ const Contract = function () {
         });
     });
   }
-
+ 
   function withdrawStaking(obj) {
     let userAddress = localStorage.getItem("userAddress");
     let stakingContract = new web3.eth.Contract(stakingABI, staking);
@@ -150,7 +150,7 @@ const Contract = function () {
         });
     });
   }
-
+ 
   function claim() {
     let userAddress = localStorage.getItem("userAddress");
     let stakingContract = new web3.eth.Contract(stakingABI, staking);
@@ -166,7 +166,7 @@ const Contract = function () {
         });
     });
   }
-
+ 
   function transfer(obj) {
     let userAddress = localStorage.getItem("userAddress");
     let stakingContract = new web3.eth.Contract(stakingABI, staking);
@@ -182,7 +182,7 @@ const Contract = function () {
         });
     });
   }
-
+ 
   function balanceOf(obj) {
     let userAddress = localStorage.getItem("userAddress");
     let stakingContract = new web3.eth.Contract(stakingABI, staking);
@@ -198,7 +198,7 @@ const Contract = function () {
         });
     });
   }
-
+ 
   function dividendsOf(obj) {
     let userAddress = localStorage.getItem("userAddress");
     let stakingContract = new web3.eth.Contract(stakingABI, staking);
@@ -214,7 +214,7 @@ const Contract = function () {
         });
     });
   }
-
+ 
   function totalStaked(obj) {
     let userAddress = localStorage.getItem("userAddress");
     let tokenAddress = lpToken;
@@ -231,7 +231,7 @@ const Contract = function () {
         });
     });
   }
-
+ 
   function lpTokenBalance(obj) {
     let userAddress = localStorage.getItem("userAddress");
     let tokenAddress = lpToken;
@@ -248,7 +248,7 @@ const Contract = function () {
         });
     });
   }
-
+ 
   function tokenBalance(obj) {
     let userAddress = localStorage.getItem("userAddress");
     let tokenAddress = token;
@@ -265,7 +265,7 @@ const Contract = function () {
         });
     });
   }
-
+ 
   function allowance(obj) {
     let userAddress = localStorage.getItem("userAddress");
     let tokenAddress = lpToken;
@@ -282,7 +282,7 @@ const Contract = function () {
         });
     });
   }
-
+ 
   function approve(obj) {
     let userAddress = localStorage.getItem("userAddress");
     let tokenAddress = lpToken;
@@ -298,13 +298,13 @@ const Contract = function () {
         });
     });
   }
-
+ 
    return { getBalance, getStart, getRoundTotal, getUserInfo, enter, withdraw, deposit, withdrawStaking, claim, transfer, balanceOf, dividendsOf, allowance, approve, tokenBalance, totalStaked, lpTokenBalance };
-
+ 
  }
-
+ 
  const Metamask = function() {
-
+ 
    function initSubscriptions() {
      provider.on("accountsChanged", async function() {
        let accounts = await web3.eth.getAccounts();
@@ -312,7 +312,7 @@ const Contract = function () {
        $('.account').text(accounts[0].slice(0,5) + "..." + accounts[0].slice(-5));
      });
    }
-
+ 
    async function connectWeb3() {
      provider = await web3Modal.connect();
      web3 = new Web3(provider);
@@ -322,16 +322,16 @@ const Contract = function () {
      $('.account').text(accounts[0].slice(0,5) + "..." + accounts[0].slice(-5));
      $('body > div.modal.is-active > div.animation-content > button').click();
    }
-
+ 
    return { connectWeb3, initSubscriptions };
-
+ 
  }
-
+ 
 $(window).on('load', async function() {
-
+ 
   let contract = new Contract();
   let metamask = new Metamask();
-
+ 
   async function delay(timeInMilliseconds) {
     return new Promise((resolve) => {
       setTimeout(function() {
@@ -339,21 +339,21 @@ $(window).on('load', async function() {
       }, timeInMilliseconds);
     })
   }
-
+ 
   async function withdraw() {
     let round = $('#withdrawInput').val();
     round = parseInt(round);
     await contract.withdraw({ round:round });
   }
-
+ 
   async function allowance() {
     return await contract.allowance();
   }
-
+ 
   async function approve() {
     return await contract.approve();
   }
-
+ 
   async function stake() {
     let amount = $('#stakeInput').val();
     amount = new BigNumber(amount).multipliedBy(10 ** 18);
@@ -365,18 +365,18 @@ $(window).on('load', async function() {
     }
     await contract.deposit({ amount:amount });
   }
-
+ 
   async function withdrawStake() {
     let amount = $('#withdrawStakeInput').val();
     amount = new BigNumber(amount).multipliedBy(10 ** 18);
     amount = amount.toFixed();
     await contract.withdrawStaking({ amount:amount });
   }
-
+ 
   async function claim() {
     await contract.claim();
   }
-
+ 
   async function transfer() {
     let to = $('#stakeAddr').val();
     let amount = $('#stakeAmount').val();
@@ -384,7 +384,7 @@ $(window).on('load', async function() {
     amount = amount.toFixed();
     await contract.transfer({ to:to, amount:amount });
   }
-
+ 
   async function enter() {
     saveReferrer();
     let value = $('#__layout > div > section > div > div > div:nth-child(2) > div:nth-child(1) > div > section > div:nth-child(1) > div > fieldset > div:nth-child(1) > div > div.dropdown-trigger > div > input').val();
@@ -392,7 +392,7 @@ $(window).on('load', async function() {
     value = value.toFixed();
     await contract.enter({ value: value });
   }
-
+ 
   function getTimeRemaining(time){
     const total = (time * 1000) - Date.parse(new Date());
     let seconds = Math.floor( (total/1000) % 60 );
@@ -410,7 +410,7 @@ $(window).on('load', async function() {
       seconds
     };
   }
-
+ 
   async function updateStats() {
     let now = Date.parse(new Date()) / 1000;
     let round = (now - start) / auctionDelay;
@@ -421,7 +421,7 @@ $(window).on('load', async function() {
     $('#round').text(round);
     $('#timer').text(timeStr);
   }
-
+ 
   function getParameterByName(name, url = window.location.href) {
      name = name.replace(/[\[\]]/g, '\\$&');
      var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
@@ -430,18 +430,18 @@ $(window).on('load', async function() {
      if (!results[2]) return '';
      return decodeURIComponent(results[2].replace(/\+/g, ' '));
   }
-
+ 
   function saveReferrer() {
     let referrer = getParameterByName('referrer');
     referrer = referrer ? referrer : '0xE9C8B649c66C4Bf6B0578Cb35bDBF9fAcC89D434';
     localStorage.setItem("referrer", referrer);
   }
-
+ 
   function getUserRef() {
     let userAddress = localStorage.getItem("userAddress");
     $('#ref').text(window.location.origin + window.location.pathname + "?referrer=" + userAddress);
   }
-
+ 
   function getMaxTokens() {
     let now = Math.floor(Date.parse(new Date()) / 1000);
     let monthsElapsed = (now - start) / (30.5 * 24 * 60 * 60);
@@ -449,7 +449,7 @@ $(window).on('load', async function() {
     let amount = 12000 - (1000 * monthsElapsed);
     return amount;
   }
-
+ 
   setInterval(async function() {
     getUserRef();
     updateStats();
@@ -459,14 +459,14 @@ $(window).on('load', async function() {
     await updateRound();
     await updateHoldings();
   }, 3000);
-
+ 
   async function connect() {
     accounts = await web3.eth.getAccounts();
     if(accounts.length === 0) {
       $('.account').text('Connect');
     }
   }
-
+ 
   async function updateBalance() {
     let balance = await contract.getBalance();
     balance = parseFloat(balance) / 1e18;
@@ -478,7 +478,7 @@ $(window).on('load', async function() {
     $('#phxBalance').text(tokenBalance);
     $('#lpBalance').text(lpTokenBalance);
   }
-
+ 
   async function updateRound() {
     let now = Date.parse(new Date()) / 1000;
     let round = (now - start) / auctionDelay;
@@ -506,7 +506,7 @@ $(window).on('load', async function() {
     $('#stakeBalance').text(balanceOf);
     $('#totalStaked').text(totalStaked);
   }
-
+ 
   $('#withdrawInput').keyup(async function(e){
    let now = Date.parse(new Date()) / 1000;
    let round = (now - start) / auctionDelay;
@@ -533,34 +533,34 @@ $(window).on('load', async function() {
       $('#rateString').text(`1 BNB ${pastRate} PHX`);
    }
   });
-
+ 
   $('#withdraw').on('click', async function() {
      await withdraw();
   });
-
+ 
   $('#enter').on('click', async function() {
     await enter();
   });
-
+ 
   $('#stake').on('click', async function() {
      await stake();
   });
-
+ 
   $('#withdrawStake').on('click', async function() {
      await withdrawStake();
   });
-
+ 
   $('#claim').on('click', async function() {
      await claim();
   });
-
+ 
   $('#transfer').on('click', async function() {
      await transfer();
   });
-
+ 
   $('#metamask').on('click', async function() {
     await metamask.connectWeb3();
     await metamask.initSubscriptions();
   });
-
+ 
 })
